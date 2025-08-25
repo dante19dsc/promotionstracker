@@ -3,16 +3,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GLOBAL STATE ---
     let allPromotions = [];
     let allCompetitors = [];
+    let allCategories = [];
+    let currentDate = new Date('2025-08-01T00:00:00Z');
+
+    // --- DOM ELEMENTS ---
+    const detailsModal = document.getElementById('promoModal');
+    const detailsModalBody = document.getElementById('modal-body');
+    const detailsModalCloseButton = document.getElementById('modalCloseButton');
+    const addPromoModal = document.getElementById('addPromoModal');
+    const addPromoBtn = document.getElementById('addPromotionBtn');
+    const addPromoForm = document.getElementById('addPromoForm');
+    const addModalCancelButton = document.getElementById('addModalCancelButton');
+    const countrySelector = document.getElementById('countrySelector');
+    const monthDisplay = document.getElementById('monthDisplay');
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
 
     // --- GLOBAL CONFIGURATION ---
     const competitorConfig = {
         'Hartono': { colorClass: 'hartono', bgColor: '#DBEAFE' },
-        'Electronic City': { colorClass: 'electronic-city', bgColor: '#D1FAE5' },
-        'Erablue': { colorClass: 'erablue', bgColor: '#FEF3C7' },
-        'Courts': { colorClass: 'courts', bgColor: '#FEE2E2' },
-        'Harvey Norman': { colorClass: 'harvey-norman', bgColor: '#F5F3FF' }
+        'Electronic City': { colorClass: 'electronic-city', bgColor: '#DBEAFE' },
+        'Erablue': { colorClass: 'erablue', bgColor: '#E0E7FF' },
+        'Courts': { colorClass: 'courts', bgColor: '#E0E7FF' },
+        'Harvey Norman': { colorClass: 'harvey-norman', bgColor: '#E5E7EB' }
     };
-    const MONTH_YEAR = '2025-08';
     const API_KEY = '$2a$10$a9opB6cl3g504axvVz6kwOM3WAs4VeFQIsfg7tJnMg.eLeV7I8Zmi';
     const dataSources = {
         id: '68abbd4943b1c97be92887d9',
@@ -23,14 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UTILITY FUNCTIONS ---
     const getPromoCategory = (promo) => {
         const text = (promo.title + ' ' + promo.details).toLowerCase();
-        if (text.includes('bank') || text.includes('credit card') || text.includes('cicilan') || text.includes('dbs') || text.includes('mandiri') || text.includes('kredivo') || text.includes('indodana') || text.includes('akulaku') || text.includes('cimb')) return 'Bank & Payment';
-        if (text.includes('hp') || text.includes('smartphone') || text.includes('galaxy') || text.includes('foldable') || text.includes('reno') || text.includes('vivo') || text.includes('realme') || text.includes('wearables')) return 'HP & Gadget';
-        if (text.includes('laptop') || text.includes('vivobook') || text.includes('acer') || text.includes('lenovo') || text.includes('hp') || text.includes('asus') || text.includes('pc') || text.includes('snapdragon') || text.includes('monitor')) return 'Laptop & PC';
-        if (text.includes('tv') || text.includes('soundbar') || text.includes('qled') || text.includes('uhd') || text.includes('google tv') || text.includes('smart tv') || text.includes('speaker')) return 'TV & Audio';
-        if (text.includes('refrigerator') || text.includes('kulkas') || text.includes('mesin cuci') || text.includes('washing machine') || text.includes('water heater') || text.includes('air cooler') || text.includes('setrika') || text.includes('rice cooker') || text.includes('cooker') || text.includes('bosch') || text.includes('ac')) return 'Home Appliances';
-        if (text.includes('back to school') || text.includes('kembali ke sekolah')) return 'Back to School';
-        if (text.includes('independence day') || text.includes('kemerdekaan') || text.includes('17 agustus') || text.includes('merdeka') || text.includes('agustusan') || text.includes('national day')) return 'National Day';
-        if (text.includes('cctv') || text.includes('smart home') || text.includes('door lock') || text.includes('starlink')) return 'Smart Home & IoT';
+        if (text.includes('bank') || text.includes('credit card') || text.includes('cicilan')) return 'Bank & Payment';
+        if (text.includes('hp') || text.includes('smartphone') || text.includes('wearables')) return 'HP & Gadget';
+        if (text.includes('laptop') || text.includes('pc') || text.includes('monitor')) return 'Laptop & PC';
+        if (text.includes('tv') || text.includes('soundbar') || text.includes('speaker')) return 'TV & Audio';
+        if (text.includes('refrigerator') || text.includes('kulkas') || text.includes('mesin cuci') || text.includes('ac')) return 'Home Appliances';
+        if (text.includes('back to school')) return 'Back to School';
+        if (text.includes('independence day') || text.includes('national day') || text.includes('merdeka')) return 'National Day';
+        if (text.includes('smart home') || text.includes('cctv')) return 'Smart Home & IoT';
         return 'General';
     };
 
@@ -50,11 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const calculatePromotionSpan = (startDate, endDate) => {
-        const monthStart = new Date(`${MONTH_YEAR}-01T00:00:00Z`);
+        const monthStart = new Date(currentDate);
+        monthStart.setUTCDate(1);
+        monthStart.setUTCHours(0, 0, 0, 0);
+
         const monthEnd = new Date(monthStart);
         monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
         monthEnd.setUTCDate(0);
-        monthEnd.setUTCHours(23, 59, 59);
+        monthEnd.setUTCHours(23, 59, 59, 999);
 
         let promoStart = new Date(startDate), promoEnd = new Date(endDate);
         promoStart = promoStart < monthStart ? monthStart : promoStart;
@@ -68,15 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // --- MODAL HANDLING ---
-    const detailsModal = document.getElementById('promoModal');
-    const detailsModalBody = document.getElementById('modal-body');
-    const detailsModalCloseButton = document.getElementById('modalCloseButton');
-    
-    const addPromoModal = document.getElementById('addPromoModal');
-    const addPromoBtn = document.getElementById('addPromotionBtn');
-    const addPromoForm = document.getElementById('addPromoForm');
-    const addModalCancelButton = document.getElementById('addModalCancelButton');
-
     const showDetailsModal = (promo) => {
         detailsModalBody.innerHTML = `
             <p><strong>Competitor:</strong> ${promo.competitor}</p>
@@ -89,17 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
         detailsModal.classList.remove('hidden');
     };
 
-    detailsModalCloseButton.onclick = () => detailsModal.classList.add('hidden');
-    detailsModal.onclick = (e) => { if (e.target === detailsModal) detailsModal.classList.add('hidden'); };
-
-    addModalCancelButton.onclick = () => addPromoModal.classList.add('hidden');
-    addPromoModal.onclick = (e) => { if (e.target === addPromoModal) addPromoModal.classList.add('hidden'); };
-
     // --- RENDERING FUNCTIONS ---
     const renderAll = () => {
-        const categories = [...new Set(allPromotions.map(p => p.category))].sort();
-        createTimeline(allPromotions, allCompetitors, categories);
+        updateMonthDisplay();
+        createTimeline(allPromotions, allCompetitors, allCategories);
         renderPromotionCards(allPromotions, allCompetitors);
+    };
+
+    const updateMonthDisplay = () => {
+        if (monthDisplay) {
+            monthDisplay.textContent = currentDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+                timeZone: 'UTC'
+            });
+        }
     };
 
     const createTimeline = (promotions, competitors, categories) => {
@@ -107,17 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) return;
         container.innerHTML = '';
 
+        const daysInMonth = new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth() + 1, 0).getUTCDate();
+        const gridTemplateColumns = `220px repeat(${daysInMonth}, 35px)`;
+
         const header = document.createElement('div');
         header.className = 'timeline-header';
+        header.style.gridTemplateColumns = gridTemplateColumns;
         let headerHTML = '<div class="timeline-header-cell">Category</div>';
-        const today = new Date();
-        const currentDayOfMonth = (today.getFullYear() === 2025 && today.getMonth() === 7) ? today.getDate() : -1;
-
-        for (let day = 1; day <= 31; day++) {
-            let specialClass = '';
-            if (day === currentDayOfMonth) specialClass = 'today';
-            else if (day === 17) specialClass = 'independence-day';
-            headerHTML += `<div class="timeline-header-cell ${specialClass}">${day}</div>`;
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            headerHTML += `<div class="timeline-header-cell">${day}</div>`;
         }
         header.innerHTML = headerHTML;
         container.appendChild(header);
@@ -127,8 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const competitorRow = document.createElement('div');
             competitorRow.className = 'timeline-row';
+            competitorRow.style.gridTemplateColumns = gridTemplateColumns;
             competitorRow.innerHTML = `<div class="timeline-label competitor-header">${compName}</div>` + 
-                Array(31).fill(`<div class="timeline-cell" style="background-color: ${config.bgColor};"></div>`).join('');
+                Array(daysInMonth).fill(`<div class="timeline-cell" style="background-color: ${config.bgColor};"></div>`).join('');
             container.appendChild(competitorRow);
 
             categories.forEach(catName => {
@@ -137,17 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const categoryRow = document.createElement('div');
                 categoryRow.className = 'timeline-row';
+                categoryRow.style.gridTemplateColumns = gridTemplateColumns;
                 const label = `<div class="timeline-label">${getCategoryIcon(catName)}<span>${catName}</span></div>`;
                 categoryRow.innerHTML = label;
 
-                const dayCells = Array.from({ length: 31 }, () => {
+                const dayCells = Array.from({ length: daysInMonth }, () => {
                     const cell = document.createElement('div');
                     cell.className = 'timeline-cell';
                     cell.style.backgroundColor = config.bgColor;
                     return cell;
                 });
                 
-                const dailyPromoCount = Array(32).fill(0);
+                const dailyPromoCount = Array(daysInMonth + 1).fill(0);
 
                 categoryPromos.forEach(promo => {
                     const span = calculatePromotionSpan(promo.startDate, promo.endDate);
@@ -164,7 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         dayCells[span.startDay - 1].appendChild(bar);
 
                         for(let i = 0; i < span.duration; i++) {
-                            dailyPromoCount[span.startDay + i]++;
+                            if (span.startDay + i <= daysInMonth) {
+                                dailyPromoCount[span.startDay + i]++;
+                            }
                         }
                     }
                 });
@@ -217,13 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    const populateCompetitorDropdown = (competitors) => {
-        const select = document.getElementById('competitor');
-        select.innerHTML = competitors.map(c => `<option value="${c}">${c}</option>`).join('');
+    const populateFormDropdowns = () => {
+        const competitorSelect = document.getElementById('competitor');
+        const categorySelect = document.getElementById('category');
+        if (competitorSelect) {
+            competitorSelect.innerHTML = allCompetitors.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        if (categorySelect) {
+            categorySelect.innerHTML = allCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
     };
 
     // --- DATA FETCHING AND INITIALIZATION ---
     async function initialize(countryCode) {
+        addPromoBtn.disabled = true;
         const binId = dataSources[countryCode];
         if (!binId || binId.startsWith('REPLACE_WITH')) {
             const timelineGrid = document.getElementById('timeline-grid');
@@ -245,9 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             allPromotions = promotions.map(promo => ({...promo, category: getPromoCategory(promo) }));
             allCompetitors = [...new Set(allPromotions.map(p => p.competitor))].sort();
+            allCategories = [...new Set(allPromotions.map(p => p.category))].sort();
 
-            populateCompetitorDropdown(allCompetitors);
+            populateFormDropdowns();
             renderAll();
+            addPromoBtn.disabled = false;
 
         } catch (error) {
             console.error(`Failed to load promotions from Bin ID ${binId}:`, error);
@@ -257,35 +281,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- EVENT LISTENERS ---
-    const countrySelector = document.getElementById('countrySelector');
-    countrySelector.addEventListener('change', (event) => {
-        initialize(event.target.value);
-    });
-    
-    // **FIXED**: Correctly attach event listener for the Add Promotion button
-    addPromoBtn.addEventListener('click', () => {
-        addPromoForm.reset();
-        addPromoModal.classList.remove('hidden');
-    });
+    // --- SETUP EVENT LISTENERS ---
+    function setupEventListeners() {
+        if (detailsModalCloseButton) detailsModalCloseButton.onclick = () => detailsModal.classList.add('hidden');
+        if (detailsModal) detailsModal.onclick = (e) => { if (e.target === detailsModal) detailsModal.classList.add('hidden'); };
+        
+        if (addModalCancelButton) addModalCancelButton.onclick = () => addPromoModal.classList.add('hidden');
+        if (addPromoModal) addPromoModal.onclick = (e) => { if (e.target === addPromoModal) addPromoModal.classList.add('hidden'); };
 
-    addPromoForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(addPromoForm);
-        const newPromo = {
-            competitor: formData.get('competitor'),
-            title: formData.get('title'),
-            startDate: formData.get('startDate'),
-            endDate: formData.get('endDate'),
-            details: formData.get('details'),
-            url: ''
-        };
-        newPromo.category = getPromoCategory(newPromo);
-        allPromotions.push(newPromo);
-        renderAll();
-        addPromoModal.classList.add('hidden');
-    });
+        if (addPromoBtn) {
+            addPromoBtn.addEventListener('click', () => {
+                addPromoForm.reset();
+                addPromoModal.classList.remove('hidden');
+            });
+        }
+
+        if (addPromoForm) {
+            addPromoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(addPromoForm);
+                const newPromo = {
+                    competitor: formData.get('competitor'),
+                    title: formData.get('title'),
+                    startDate: formData.get('startDate'),
+                    endDate: formData.get('endDate'),
+                    details: formData.get('details'),
+                    category: formData.get('category'),
+                    url: ''
+                };
+                allPromotions.push(newPromo);
+                renderAll();
+                addPromoModal.classList.add('hidden');
+            });
+        }
+
+        if (countrySelector) {
+            countrySelector.addEventListener('change', (event) => {
+                initialize(event.target.value);
+            });
+        }
+        
+        if (prevMonthBtn) {
+            prevMonthBtn.addEventListener('click', () => {
+                currentDate.setUTCMonth(currentDate.getUTCMonth() - 1);
+                renderAll();
+            });
+        }
+        
+        if (nextMonthBtn) {
+            nextMonthBtn.addEventListener('click', () => {
+                currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
+                renderAll();
+            });
+        }
+    }
 
     // --- INITIAL LOAD ---
+    setupEventListeners();
     initialize(countrySelector.value);
 });
