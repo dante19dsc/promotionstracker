@@ -1,0 +1,141 @@
+/* --- General & Resets --- */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F9FAFB;
+    color: #374151;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 { color: #111827; font-weight: 600; }
+a { color: #4F46E5; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.mb-8 { margin-bottom: 3.5rem; }
+
+/* --- Layout --- */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* --- Header --- */
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+.logo { display: flex; align-items: center; font-weight: 600; font-size: 1.125rem; color: #111827; }
+.site-nav { display: flex; gap: 1rem; }
+.nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4B5563;
+    transition: background-color 0.2s ease;
+}
+.nav-link:hover { background-color: #F3F4F6; text-decoration: none; }
+.nav-link.active { background-color: #EEF2FF; color: #4338CA; }
+
+/* --- Page Title --- */
+.page-title {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+.page-title h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+.page-title p { font-size: 1.125rem; color: #6B7280; margin-top: 0; }
+
+/* --- Cards --- */
+.card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+.card-header {
+    font-size: 1.125rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+/* --- Timeline --- */
+.timeline-container { overflow-x: auto; padding: 1.5rem; padding-bottom: 1rem; }
+.timeline-header { display: grid; grid-template-columns: 200px repeat(31, 35px); position: sticky; top: 0; z-index: 10; background-color: #fff;}
+.timeline-header-cell {
+    background-color: #F9FAFB; color: #4B5563;
+    padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 600;
+    border-right: 1px solid #F3F4F6; border-bottom: 1px solid #E5E7EB;
+}
+.timeline-header-cell:first-child { position: sticky; left: 0; z-index: 11; background-color: #fff; text-align: left; padding-left: 12px;}
+.timeline-header-cell.today { background-color: #FEE2E2; color: #B91C1C; font-weight: 700; }
+.timeline-header-cell.independence-day { background-color: #FFEDD5; color: #9A3412; }
+.timeline-row { display: grid; grid-template-columns: 200px repeat(31, 35px); min-height: 40px; border-bottom: 1px solid #F3F4F6; }
+.timeline-label {
+    padding: 8px 12px; font-size: 13px; font-weight: 500; color: #374151;
+    border-right: 1px solid #E5E7EB; background-color: #F9FAFB;
+    position: sticky; left: 0; z-index: 5; display: flex; align-items: center;
+}
+.timeline-label.competitor-header { font-weight: 700; font-size: 14px; background-color: #F3F4F6; }
+.timeline-cell { border-right: 1px solid #F3F4F6; position: relative; }
+.timeline-bar {
+    position: absolute; height: 26px; top: 7px; left: 2px; border-radius: 4px;
+    display: flex; align-items: center; font-size: 11px; font-weight: 600;
+    color: white; cursor: pointer; transition: all 0.2s ease; z-index: 6;
+    padding: 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.timeline-bar:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 7;}
+.timeline-bar.hartono { background-color: #F59E0B; border-left: 3px solid #D97706; }
+.timeline-bar.electronic-city { background-color: #3B82F6; border-left: 3px solid #2563EB; }
+.timeline-bar.erablue { background-color: #14B8A6; border-left: 3px solid #0D9488; }
+
+/* --- Promotion Card Grid --- */
+.promo-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+.promo-card {
+    background-color: #FFFFFF; border-radius: 0.75rem;
+    border: 1px solid #E5E7EB; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.promo-card-header { padding: 1rem; font-size: 1.25rem; font-weight: 700; color: #111827; background-color: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
+.promo-card-content { padding: 1rem; flex-grow: 1; }
+.promo-item { display: flex; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed #E5E7EB; }
+.promo-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.promo-item-img { width: 60px; height: 60px; border-radius: 0.5rem; object-fit: cover; margin-right: 1rem; flex-shrink: 0; }
+.promo-item-details { flex-grow: 1; }
+.promo-item-title { font-weight: 600; color: #1F2937; margin-bottom: 0.25rem; }
+.promo-item-category {
+    font-size: 0.75rem; color: #4338CA; margin-bottom: 0.5rem; padding: 0.125rem 0.5rem;
+    background-color: #EEF2FF; border-radius: 999px; display: inline-block; font-weight: 500;
+}
+.promo-item-description { font-size: 0.875rem; color: #4B5563; }
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.6);
+    display: flex; items-center; justify-center; z-index: 50;
+    backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { display: none; }
+.modal-content {
+    background: white; padding: 1.5rem; border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    max-width: 500px; width: 90%;
+}
+.modal-header { font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem; }
+.modal-body p { margin: 0.5rem 0; line-height: 1.6; }
+.modal-body strong { color: #111827; }
+.modal-footer { margin-top: 1.5rem; text-align: right; }
+.btn {
+    padding: 0.6rem 1.2rem; border: none; border-radius: 0.5rem;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.btn-secondary {
+    background-color: #E5E7EB; color: #374151;
+}
+.btn-secondary:hover { background-color: #D1D5DB; }
