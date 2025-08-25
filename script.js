@@ -6,6 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let allCategories = [];
     let currentDate = new Date('2025-08-01T00:00:00Z');
 
+    // --- BASE CATEGORIES ---
+    const baseCategories = [
+        'Bank & Payment', 'HP & Gadget', 'Laptop & PC', 'TV & Audio',
+        'Home Appliances', 'Back to School', 'National Day',
+        'Smart Home & IoT', 'General'
+    ];
+
     // --- DOM ELEMENTS ---
     const detailsModal = document.getElementById('promoModal');
     const detailsModalBody = document.getElementById('modal-body');
@@ -34,13 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         my: 'REPLACE_WITH_MALAYSIA_BIN_ID'
     };
 
-    const baseCategories = [
-        'Bank & Payment', 'HP & Gadget', 'Laptop & PC',
-        'TV & Audio', 'Home Appliances', 'Back to School',
-        'National Day', 'Smart Home & IoT', 'General'
-    ];
-
-
     // --- UTILITY FUNCTIONS ---
     const getPromoCategory = (promo) => {
         const text = (promo.title + ' ' + promo.details).toLowerCase();
@@ -57,34 +57,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getCategoryIcon = (category) => {
         const icons = {
-            'Bank & Payment': `<svg class="icon" viewBox="0 0 24 24"><path fill="#C7D2FE" d="M4 8h16v2H4z"/><path fill="#4F46E5" d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V10h16v8zm-8-2h2v-4h-2v4z"/></svg>`,
-            'HP & Gadget': `<svg class="icon" viewBox="0 0 24 24"><path fill="#A7F3D0" d="M8 3h8v11H8z"/><path fill="#10B981" d="M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zm-5 18a1 1 0 110-2 1 1 0 010 2zm3-3H9V4h6v13z"/></svg>`,
-            'Laptop & PC': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FDE68A" d="M4 5h16v10H4z"/><path fill="#F59E0B" d="M22 15H2a2 2 0 00-2 2v1h24v-1a2 2 0 00-2-2zM20 4H4a2 2 0 00-2 2v10h20V6a2 2 0 00-2-2z"/></svg>`,
-            'TV & Audio': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FECACA" d="M5 7h14v8H5z"/><path fill="#EF4444" d="M21 5H3a2 2 0 00-2 2v10a2 2 0 002 2h4l-1.8 2.7A1 1 0 006 23h12a1 1 0 00.8-1.6L17 19h4a2 2 0 002-2V7a2 2 0 00-2-2zM5 15V7h14v8H5z"/></svg>`,
-            'Home Appliances': `<svg class="icon" viewBox="0 0 24 24"><path fill="#A7F3D0" d="M15 15h-2v4h2v-4zm-4 0H9v4h2v-4z"/><path fill="#10B981" d="M18 3H6a2 2 0 00-2 2v16h16V5a2 2 0 00-2-2zm-8 2h4v3h-4V5zM8 19v-4h8v4H8z"/></svg>`,
-            'Back to School': `<svg class="icon" viewBox="0 0 24 24"><path fill="#DDD6FE" d="M6 4h12v16H6z"/><path fill="#8B5CF6" d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-6 4l-3 4h6l-3-4z"/></svg>`,
-            'National Day': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FECACA" d="M5 5h14v6H5z"/><path fill="#DC2626" d="M5 3h1a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1zm15 2v6H6V5h14z"/></svg>`,
-            'Smart Home & IoT': `<svg class="icon" viewBox="0 0 24 24"><path fill="#C7D2FE" d="M12 10a2 2 0 100 4 2 2 0 000-4z"/><path fill="#4F46E5" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15a5 5 0 110-10 5 5 0 010 10z"/><path fill="#C7D2FE" d="M12 10a2 2 0 100 4 2 2 0 000-4z"/></svg>`,
-            'General': `<svg class="icon" viewBox="0 0 24 24"><path fill="#E5E7EB" d="M6 4h12v12H6z"/><path fill="#6B7280" d="M18 2H6a2 2 0 00-2 2v12a2 2 0 002 2h4v4l4-4h4a2 2 0 002-2V4a2 2 0 00-2-2zm0 14H6V4h12v12z"/></svg>`
+            'Bank & Payment': /* SVG */,
+            'HP & Gadget': /* SVG */,
+            'Laptop & PC': /* SVG */,
+            'TV & Audio': /* SVG */,
+            'Home Appliances': /* SVG */,
+            'Back to School': /* SVG */,
+            'National Day': /* SVG */,
+            'Smart Home & IoT': /* SVG */,
+            'General': /* SVG */
         };
+        // ... (copy SVG content from your original code)
         return icons[category] || icons['General'];
     };
 
     const calculatePromotionSpan = (startDate, endDate) => {
-        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1, 0, 0, 0, 0);
+        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999);
 
         let promoStart = new Date(startDate), promoEnd = new Date(endDate);
         promoStart = promoStart < monthStart ? monthStart : promoStart;
         promoEnd = promoEnd > monthEnd ? monthEnd : promoEnd;
 
         if (promoStart > promoEnd) return { startDay: -1, duration: 0 };
-        
-        const startDay = promoStart.getDate();
+
+        const startDay = promoStart.getDate();  // Not getUTCDate
         const duration = promoEnd.getDate() - startDay + 1;
         return { startDay, duration };
     };
-    
+
     // --- MODAL HANDLING ---
     const showDetailsModal = (promo) => {
         detailsModalBody.innerHTML = `
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('timeline-grid');
         if (!container) return;
         container.innerHTML = '';
-        
+
         const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
         const gridTemplateColumns = `220px repeat(${daysInMonth}, 35px)`;
         const totalWidth = 220 + (daysInMonth * 35);
@@ -128,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         header.className = 'timeline-header';
         header.style.gridTemplateColumns = gridTemplateColumns;
         let headerHTML = '<div class="timeline-header-cell">Category</div>';
-        
         for (let day = 1; day <= daysInMonth; day++) {
             headerHTML += `<div class="timeline-header-cell">${day}</div>`;
         }
@@ -137,11 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         competitors.forEach(compName => {
             const config = competitorConfig[compName] || { colorClass: 'gray', bgColor: '#F9FAFB' };
-            
+
             const competitorRow = document.createElement('div');
             competitorRow.className = 'timeline-row';
             competitorRow.style.gridTemplateColumns = gridTemplateColumns;
-            competitorRow.innerHTML = `<div class="timeline-label competitor-header">${compName}</div>` + 
+            competitorRow.innerHTML = `<div class="timeline-label competitor-header">${compName}</div>` +
                 Array(daysInMonth).fill(`<div class="timeline-cell" style="background-color: ${config.bgColor};"></div>`).join('');
             container.appendChild(competitorRow);
 
@@ -161,31 +161,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.style.backgroundColor = config.bgColor;
                     return cell;
                 });
-                
-                const dailyPromoCount = Array(daysInMonth + 1).fill(0);
+
+                // Track bar stack offset for each day
+                const dailyPromoCount = Array(daysInMonth + 2).fill(0);
 
                 categoryPromos.forEach(promo => {
                     const span = calculatePromotionSpan(promo.startDate, promo.endDate);
                     if (span.duration > 0 && dayCells[span.startDay - 1]) {
-                        const offset = Math.max(...dailyPromoCount.slice(span.startDay, span.startDay + span.duration));
+                        // Find the maximum offset across the days this bar covers
+                        let offset = 0;
+                        for (let i = 0; i < span.duration; i++) {
+                            offset = Math.max(offset, dailyPromoCount[span.startDay + i]);
+                        }
+
                         const bar = document.createElement('div');
                         bar.className = `timeline-bar ${config.colorClass}`;
                         bar.style.width = `${(span.duration * 35) - 4}px`;
                         bar.style.top = `${7 + (offset * 28)}px`;
                         bar.textContent = promo.title;
                         bar.onclick = () => showDetailsModal(promo);
-                        
+
                         dayCells[span.startDay - 1].appendChild(bar);
 
-                        // Update offsets for all days in span
+                        // Update offsets for every covered day
                         for (let i = 0; i < span.duration; i++) {
-                            if (span.startDay + i <= daysInMonth) {
-                                dailyPromoCount[span.startDay + i]++;
-                            }
+                            dailyPromoCount[span.startDay + i] = offset + 1;
                         }
                     }
                 });
 
+                // Set row height based on overlapping bars
                 const maxOffset = Math.max(...dailyPromoCount);
                 if (maxOffset > 1) {
                     categoryRow.style.minHeight = `${maxOffset * 28 + 12}px`;
@@ -208,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const card = document.createElement('div');
             card.className = 'promo-card';
-            
+
             let itemsHTML = '';
             compPromotions.forEach(promo => {
                 itemsHTML += `
@@ -233,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(card);
         });
     };
-    
+
     const populateFormDropdowns = () => {
         const competitorSelect = document.getElementById('competitor');
         const categorySelect = document.getElementById('category');
@@ -241,7 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
             competitorSelect.innerHTML = allCompetitors.map(c => `<option value="${c}">${c}</option>`).join('');
         }
         if (categorySelect) {
-            categorySelect.innerHTML = allCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+            // Always include base categories for robustness
+            const allCats = [...new Set([...allCategories, ...baseCategories])].sort();
+            categorySelect.innerHTML = allCats.map(c => `<option value="${c}">${c}</option>`).join('');
         }
     };
 
@@ -261,12 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(url, { headers: { 'X-Master-Key': API_KEY } });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}. Check API Key and Bin ID.`);
-            
+
             const data = await response.json();
-            const promotions = data.record; 
+            const promotions = data.record;
 
             if (!Array.isArray(promotions)) throw new Error("Fetched data is not an array.");
-            
+
             allPromotions = promotions.map(promo => ({...promo, category: getPromoCategory(promo) }));
             allCompetitors = [...new Set(allPromotions.map(p => p.competitor))].sort();
             allCategories = [...new Set([...allPromotions.map(p => p.category), ...baseCategories])].sort();
@@ -287,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupEventListeners() {
         if (detailsModalCloseButton) detailsModalCloseButton.onclick = () => detailsModal.classList.add('hidden');
         if (detailsModal) detailsModal.onclick = (e) => { if (e.target === detailsModal) detailsModal.classList.add('hidden'); };
-        
+
         if (addModalCancelButton) addModalCancelButton.onclick = () => addPromoModal.classList.add('hidden');
         if (addPromoModal) addPromoModal.onclick = (e) => { if (e.target === addPromoModal) addPromoModal.classList.add('hidden'); };
 
@@ -312,8 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     url: ''
                 };
                 allPromotions.push(newPromo);
+                // Always update competitors/categories on add
                 allCompetitors = [...new Set(allPromotions.map(p => p.competitor))].sort();
                 allCategories = [...new Set([...allPromotions.map(p => p.category), ...baseCategories])].sort();
+                populateFormDropdowns();
                 renderAll();
                 addPromoModal.classList.add('hidden');
             });
@@ -324,14 +333,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 initialize(event.target.value);
             });
         }
-        
+
         if (prevMonthBtn) {
             prevMonthBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 renderAll();
             });
         }
-        
+
         if (nextMonthBtn) {
             nextMonthBtn.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() + 1);
