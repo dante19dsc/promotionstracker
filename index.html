@@ -38,7 +38,7 @@
             <div class="page-title">
                 <div>
                     <h1>Competitor Promotion Tracker</h1>
-                    <p>Monitor and analyze competitor promotional activities for August 2025.</p>
+                    <p>Monitor and analyze competitor promotional activities.</p>
                 </div>
                 <div class="page-actions">
                      <div class="country-selector-wrapper">
@@ -53,7 +53,14 @@
             </div>
             
             <div class="card mb-8">
-                <h3 class="card-header">Promotions Timeline</h3>
+                <div class="card-header with-nav">
+                    <h3>Promotions Timeline</h3>
+                    <div class="month-navigation">
+                        <button id="prevMonthBtn" class="month-nav-btn">&lt;</button>
+                        <h4 id="monthDisplay">August 2025</h4>
+                        <button id="nextMonthBtn" class="month-nav-btn">&gt;</button>
+                    </div>
+                </div>
                 <div class="timeline-container">
                     <div id="timeline-grid">
                         <!-- JS will build the timeline here -->
@@ -97,6 +104,12 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                             <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
                         <label for="title">Promotion Title</label>
                         <input type="text" id="title" name="title" required>
                     </div>
