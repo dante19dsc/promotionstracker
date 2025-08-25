@@ -1,300 +1,263 @@
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- GLOBAL STATE ---
-    let allPromotions = [];
-    let allCompetitors = [];
+/* --- Color & Theme Variables --- */
+:root {
+    --background-color: #F8FAFC; /* Lighter Gray */
+    --text-primary: #0F172A; /* Slate 900 */
+    --text-secondary: #64748B; /* Slate 500 */
+    --border-color: #E2E8F0; /* Slate 200 */
+    --card-background: #FFFFFF;
+    --accent-primary: #2563EB; /* Blue 600 */
+    --accent-primary-hover: #1D4ED8; /* Blue 700 */
+    --accent-primary-light: #DBEAFE; /* Blue 100 */
+    --competitor-1: #1E40AF; /* Blue 800 */
+    --competitor-2: #1E3A8A; /* Blue 900 */
+    --competitor-3: #475569; /* Slate 600 */
+    --competitor-4: #52525B; /* Zinc 600 */
+    --competitor-5: #3F3F46; /* Zinc 700 */
+}
 
-    // --- DOM ELEMENTS (Defined early) ---
-    const detailsModal = document.getElementById('promoModal');
-    const detailsModalBody = document.getElementById('modal-body');
-    const detailsModalCloseButton = document.getElementById('modalCloseButton');
-    
-    const addPromoModal = document.getElementById('addPromoModal');
-    const addPromoBtn = document.getElementById('addPromotionBtn');
-    const addPromoForm = document.getElementById('addPromoForm');
-    const addModalCancelButton = document.getElementById('addModalCancelButton');
-    const countrySelector = document.getElementById('countrySelector');
+/* --- General & Resets --- */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-    // --- GLOBAL CONFIGURATION ---
-    const competitorConfig = {
-        'Hartono': { colorClass: 'hartono', bgColor: '#DBEAFE' },
-        'Electronic City': { colorClass: 'electronic-city', bgColor: '#DBEAFE' },
-        'Erablue': { colorClass: 'erablue', bgColor: '#E0E7FF' },
-        'Courts': { colorClass: 'courts', bgColor: '#E0E7FF' },
-        'Harvey Norman': { colorClass: 'harvey-norman', bgColor: '#E5E7EB' }
-    };
-    const MONTH_YEAR = '2025-08';
-    const API_KEY = '$2a$10$a9opB6cl3g504axvVz6kwOM3WAs4VeFQIsfg7tJnMg.eLeV7I8Zmi';
-    const dataSources = {
-        id: '68abbd4943b1c97be92887d9',
-        sg: 'REPLACE_WITH_SINGAPORE_BIN_ID',
-        my: 'REPLACE_WITH_MALAYSIA_BIN_ID'
-    };
+h1, h2, h3, h4 { color: var(--text-primary); font-weight: 600; }
+a { color: var(--accent-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.mb-8 { margin-bottom: 3.5rem; }
 
-    // --- UTILITY FUNCTIONS ---
-    const getPromoCategory = (promo) => {
-        const text = (promo.title + ' ' + promo.details).toLowerCase();
-        if (text.includes('bank') || text.includes('credit card') || text.includes('cicilan') || text.includes('dbs') || text.includes('mandiri') || text.includes('kredivo') || text.includes('indodana') || text.includes('akulaku') || text.includes('cimb')) return 'Bank & Payment';
-        if (text.includes('hp') || text.includes('smartphone') || text.includes('galaxy') || text.includes('foldable') || text.includes('reno') || text.includes('vivo') || text.includes('realme') || text.includes('wearables')) return 'HP & Gadget';
-        if (text.includes('laptop') || text.includes('vivobook') || text.includes('acer') || text.includes('lenovo') || text.includes('hp') || text.includes('asus') || text.includes('pc') || text.includes('snapdragon') || text.includes('monitor')) return 'Laptop & PC';
-        if (text.includes('tv') || text.includes('soundbar') || text.includes('qled') || text.includes('uhd') || text.includes('google tv') || text.includes('smart tv') || text.includes('speaker')) return 'TV & Audio';
-        if (text.includes('refrigerator') || text.includes('kulkas') || text.includes('mesin cuci') || text.includes('washing machine') || text.includes('water heater') || text.includes('air cooler') || text.includes('setrika') || text.includes('rice cooker') || text.includes('cooker') || text.includes('bosch') || text.includes('ac')) return 'Home Appliances';
-        if (text.includes('back to school') || text.includes('kembali ke sekolah')) return 'Back to School';
-        if (text.includes('independence day') || text.includes('kemerdekaan') || text.includes('17 agustus') || text.includes('merdeka') || text.includes('agustusan') || text.includes('national day')) return 'National Day';
-        if (text.includes('cctv') || text.includes('smart home') || text.includes('door lock') || text.includes('starlink')) return 'Smart Home & IoT';
-        return 'General';
-    };
+/* --- Layout --- */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
 
-    const getCategoryIcon = (category) => {
-        const icons = {
-            'Bank & Payment': `<svg class="icon" viewBox="0 0 24 24"><path fill="#C7D2FE" d="M4 8h16v2H4z"/><path fill="#4F46E5" d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V10h16v8zm-8-2h2v-4h-2v4z"/></svg>`,
-            'HP & Gadget': `<svg class="icon" viewBox="0 0 24 24"><path fill="#A7F3D0" d="M8 3h8v11H8z"/><path fill="#10B981" d="M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zm-5 18a1 1 0 110-2 1 1 0 010 2zm3-3H9V4h6v13z"/></svg>`,
-            'Laptop & PC': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FDE68A" d="M4 5h16v10H4z"/><path fill="#F59E0B" d="M22 15H2a2 2 0 00-2 2v1h24v-1a2 2 0 00-2-2zM20 4H4a2 2 0 00-2 2v10h20V6a2 2 0 00-2-2z"/></svg>`,
-            'TV & Audio': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FECACA" d="M5 7h14v8H5z"/><path fill="#EF4444" d="M21 5H3a2 2 0 00-2 2v10a2 2 0 002 2h4l-1.8 2.7A1 1 0 006 23h12a1 1 0 00.8-1.6L17 19h4a2 2 0 002-2V7a2 2 0 00-2-2zM5 15V7h14v8H5z"/></svg>`,
-            'Home Appliances': `<svg class="icon" viewBox="0 0 24 24"><path fill="#A7F3D0" d="M15 15h-2v4h2v-4zm-4 0H9v4h2v-4z"/><path fill="#10B981" d="M18 3H6a2 2 0 00-2 2v16h16V5a2 2 0 00-2-2zm-8 2h4v3h-4V5zM8 19v-4h8v4H8z"/></svg>`,
-            'Back to School': `<svg class="icon" viewBox="0 0 24 24"><path fill="#DDD6FE" d="M6 4h12v16H6z"/><path fill="#8B5CF6" d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-6 4l-3 4h6l-3-4z"/></svg>`,
-            'National Day': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FECACA" d="M5 5h14v6H5z"/><path fill="#DC2626" d="M5 3h1a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1zm15 2v6H6V5h14z"/></svg>`,
-            'Smart Home & IoT': `<svg class="icon" viewBox="0 0 24 24"><path fill="#C7D2FE" d="M12 10a2 2 0 100 4 2 2 0 000-4z"/><path fill="#4F46E5" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15a5 5 0 110-10 5 5 0 010 10z"/><path fill="#C7D2FE" d="M12 10a2 2 0 100 4 2 2 0 000-4z"/></svg>`,
-            'General': `<svg class="icon" viewBox="0 0 24 24"><path fill="#E5E7EB" d="M6 4h12v12H6z"/><path fill="#6B7280" d="M18 2H6a2 2 0 00-2 2v12a2 2 0 002 2h4v4l4-4h4a2 2 0 002-2V4a2 2 0 00-2-2zm0 14H6V4h12v12z"/></svg>`
-        };
-        return icons[category] || icons['General'];
-    };
+/* --- Header & Navigation --- */
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.logo { display: flex; align-items: center; font-weight: 600; font-size: 1.125rem; color: var(--text-primary); }
+.site-nav { display: flex; gap: 1rem; }
+.nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: background-color 0.2s ease;
+}
+.nav-link:hover { background-color: #F1F5F9; text-decoration: none; }
+.nav-link.active { background-color: var(--accent-primary-light); color: var(--accent-primary); }
 
-    const calculatePromotionSpan = (startDate, endDate) => {
-        const monthStart = new Date(`${MONTH_YEAR}-01T00:00:00Z`);
-        const monthEnd = new Date(monthStart);
-        monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
-        monthEnd.setUTCDate(0);
-        monthEnd.setUTCHours(23, 59, 59);
+/* --- Page Title & Actions --- */
+.page-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+.page-title h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+.page-title p { font-size: 1.125rem; color: var(--text-secondary); margin-top: 0; }
+.page-actions { display: flex; align-items: center; gap: 1rem; }
 
-        let promoStart = new Date(startDate), promoEnd = new Date(endDate);
-        promoStart = promoStart < monthStart ? monthStart : promoStart;
-        promoEnd = promoEnd > monthEnd ? monthEnd : promoEnd;
+/* --- Buttons & Inputs --- */
+.btn {
+    padding: 0.6rem 1.2rem; border: none; border-radius: 0.5rem;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.btn-primary {
+    background-color: var(--accent-primary); color: white;
+}
+.btn-primary:hover { background-color: var(--accent-primary-hover); box-shadow: 0 4px 10px -2px rgb(37 99 235 / 40%); }
+.btn-secondary {
+    background-color: #E2E8F0; color: var(--text-primary);
+}
+.btn-secondary:hover { background-color: #CBD5E1; }
 
-        if (promoStart > promoEnd) return { startDay: -1, duration: 0 };
-        
-        const startDay = promoStart.getUTCDate();
-        const duration = promoEnd.getUTCDate() - startDay + 1;
-        return { startDay, duration };
-    };
-    
-    // --- MODAL HANDLING ---
-    const showDetailsModal = (promo) => {
-        detailsModalBody.innerHTML = `
-            <p><strong>Competitor:</strong> ${promo.competitor}</p>
-            <p><strong>Title:</strong> ${promo.title}</p>
-            <p><strong>Category:</strong> ${promo.category}</p>
-            <p><strong>Duration:</strong> ${promo.startDate} to ${promo.endDate}</p>
-            <p><strong>Details:</strong> ${promo.details}</p>
-            ${promo.url ? `<p><strong>Source:</strong> <a href="${promo.url}" target="_blank" rel="noopener noreferrer">View Promotion</a></p>` : ''}
-        `;
-        detailsModal.classList.remove('hidden');
-    };
+.country-selector {
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #CBD5E1;
+    background-color: var(--card-background);
+    font-size: 0.875rem;
+    font-weight: 500;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
 
-    // --- RENDERING FUNCTIONS ---
-    const renderAll = () => {
-        const categories = [...new Set(allPromotions.map(p => p.category))].sort();
-        createTimeline(allPromotions, allCompetitors, categories);
-        renderPromotionCards(allPromotions, allCompetitors);
-    };
+/* --- Cards --- */
+.card {
+    background-color: var(--card-background);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+.card-header {
+    font-size: 1.125rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.card-header.with-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    const createTimeline = (promotions, competitors, categories) => {
-        const container = document.getElementById('timeline-grid');
-        if (!container) return;
-        container.innerHTML = '';
+/* --- Month Navigation --- */
+.month-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.month-navigation h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 120px;
+    text-align: center;
+}
+.month-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #CBD5E1;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.month-nav-btn:hover {
+    background-color: #F1F5F9;
+    border-color: #94A3B8;
+}
 
-        const header = document.createElement('div');
-        header.className = 'timeline-header';
-        let headerHTML = '<div class="timeline-header-cell">Category</div>';
-        const today = new Date();
-        const currentDayOfMonth = (today.getFullYear() === 2025 && today.getMonth() === 7) ? today.getDate() : -1;
+/* --- Timeline --- */
+.timeline-container { 
+    overflow-x: auto; 
+    padding: 1.5rem; 
+    padding-bottom: 1rem; 
+    position: relative;
+}
+.timeline-header { display: grid; grid-template-columns: 220px repeat(31, 35px); position: sticky; top: 0; z-index: 10; background-color: var(--card-background);}
+.timeline-header-cell {
+    background-color: #F8FAFC; color: var(--text-secondary);
+    padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 600;
+    border-right: 1px solid #F1F5F9; border-bottom: 1px solid var(--border-color);
+}
+.timeline-header-cell:first-child { position: sticky; left: 0; z-index: 11; background-color: var(--card-background); text-align: left; padding-left: 12px;}
+.timeline-header-cell.today { background-color: #FEF2F2; color: #B91C1C; font-weight: 700; }
+.timeline-row { display: grid; grid-template-columns: 220px repeat(31, 35px); min-height: 40px; border-bottom: 1px solid #F1F5F9; }
+.timeline-label {
+    padding: 8px 12px; font-size: 13px; font-weight: 500; color: var(--text-primary);
+    border-right: 1px solid var(--border-color); background-color: #F8FAFC;
+    position: sticky; left: 0; 
+    z-index: 8;
+    display: flex; align-items: center; gap: 8px;
+}
+.timeline-label .icon { width: 18px; height: 18px; color: var(--text-secondary); }
+.timeline-label.competitor-header { font-weight: 700; font-size: 14px; background-color: #F1F5F9; }
+.timeline-cell { border-right: 1px solid #F1F5F9; position: relative; overflow: hidden; }
+.timeline-bar {
+    position: absolute; height: 24px; left: 2px; border-radius: 4px;
+    display: flex; align-items: center; font-size: 11px; font-weight: 600;
+    color: white; cursor: pointer; transition: all 0.2s ease; 
+    z-index: 6;
+    padding: 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.timeline-bar:hover { 
+    transform: translateY(-1px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    z-index: 7;
+}
+.timeline-bar.hartono { background-color: var(--competitor-1); border-left: 3px solid #1D4ED8; }
+.timeline-bar.electronic-city { background-color: var(--competitor-2); border-left: 3px solid #172554; }
+.timeline-bar.erablue { background-color: var(--competitor-3); border-left: 3px solid #334155; }
+.timeline-bar.courts { background-color: var(--competitor-4); border-left: 3px solid #404040; }
+.timeline-bar.harvey-norman { background-color: var(--competitor-5); border-left: 3px solid #27272A; }
 
-        for (let day = 1; day <= 31; day++) {
-            let specialClass = '';
-            if (day === currentDayOfMonth) specialClass = 'today';
-            else if (day === 17) specialClass = 'independence-day';
-            headerHTML += `<div class="timeline-header-cell ${specialClass}">${day}</div>`;
-        }
-        header.innerHTML = headerHTML;
-        container.appendChild(header);
+/* --- Promotion Card Grid --- */
+.promo-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+.promo-card {
+    background-color: var(--card-background); border-radius: 0.75rem;
+    border: 1px solid var(--border-color); box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    overflow: hidden; display: flex; flex-direction: column;
+}
+.promo-card-header { padding: 1rem; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); background-color: #F8FAFC; border-bottom: 1px solid var(--border-color); }
+.promo-card-content { padding: 1rem; flex-grow: 1; }
+.promo-item { display: flex; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border-color); }
+.promo-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.promo-item-icon-wrapper {
+    width: 40px; height: 40px; border-radius: 0.5rem; margin-right: 1rem;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    background-color: var(--accent-primary-light);
+}
+.promo-item-icon-wrapper .icon { width: 22px; height: 22px; color: var(--accent-primary); }
+.promo-item-details { flex-grow: 1; }
+.promo-item-title { font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+.promo-item-category {
+    font-size: 0.75rem; color: var(--accent-primary); margin-bottom: 0.5rem; padding: 0.125rem 0.5rem;
+    background-color: var(--accent-primary-light); border-radius: 999px; display: inline-block; font-weight: 500;
+}
+.promo-item-description { font-size: 0.875rem; color: var(--text-secondary); }
 
-        competitors.forEach(compName => {
-            const config = competitorConfig[compName] || { colorClass: 'gray', bgColor: '#F9FAFB' };
-            
-            const competitorRow = document.createElement('div');
-            competitorRow.className = 'timeline-row';
-            competitorRow.innerHTML = `<div class="timeline-label competitor-header">${compName}</div>` + 
-                Array(31).fill(`<div class="timeline-cell" style="background-color: ${config.bgColor};"></div>`).join('');
-            container.appendChild(competitorRow);
+/* --- Modal & Form Styles --- */
+.modal-overlay {
+    position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.6);
+    display: flex; items-center; justify-content: center; z-index: 50;
+    backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { display: none; }
+.modal-content {
+    background: var(--card-background); padding: 1.5rem; border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    max-width: 500px; width: 90%;
+}
+.modal-header { font-size: 1.25rem; margin-top: 0; margin-bottom: 1.5rem; }
+.modal-body p { margin: 0.5rem 0; line-height: 1.6; }
+.modal-body strong { color: var(--text-primary); }
+.modal-footer { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; }
 
-            categories.forEach(catName => {
-                const categoryPromos = promotions.filter(p => p.competitor === compName && p.category === catName);
-                if (categoryPromos.length === 0) return;
-
-                const categoryRow = document.createElement('div');
-                categoryRow.className = 'timeline-row';
-                const label = `<div class="timeline-label">${getCategoryIcon(catName)}<span>${catName}</span></div>`;
-                categoryRow.innerHTML = label;
-
-                const dayCells = Array.from({ length: 31 }, () => {
-                    const cell = document.createElement('div');
-                    cell.className = 'timeline-cell';
-                    cell.style.backgroundColor = config.bgColor;
-                    return cell;
-                });
-                
-                const dailyPromoCount = Array(32).fill(0);
-
-                categoryPromos.forEach(promo => {
-                    const span = calculatePromotionSpan(promo.startDate, promo.endDate);
-                    if (span.duration > 0 && dayCells[span.startDay - 1]) {
-                        const bar = document.createElement('div');
-                        const offset = dailyPromoCount[span.startDay];
-                        
-                        bar.className = `timeline-bar ${config.colorClass}`;
-                        bar.style.width = `${(span.duration * 35) - 4}px`;
-                        bar.style.top = `${7 + (offset * 28)}px`;
-                        bar.textContent = promo.title;
-                        bar.onclick = () => showDetailsModal(promo);
-                        
-                        dayCells[span.startDay - 1].appendChild(bar);
-
-                        for(let i = 0; i < span.duration; i++) {
-                            dailyPromoCount[span.startDay + i]++;
-                        }
-                    }
-                });
-
-                const maxOffset = Math.max(...dailyPromoCount);
-                if (maxOffset > 1) {
-                    categoryRow.style.minHeight = `${maxOffset * 28 + 12}px`;
-                }
-
-                dayCells.forEach(cell => categoryRow.appendChild(cell));
-                container.appendChild(categoryRow);
-            });
-        });
-    };
-
-    const renderPromotionCards = (promotions, competitors) => {
-        const container = document.getElementById('promo-cards-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        competitors.forEach(compName => {
-            const compPromotions = promotions.filter(p => p.competitor === compName);
-            if (compPromotions.length === 0) return;
-
-            const card = document.createElement('div');
-            card.className = 'promo-card';
-            
-            let itemsHTML = '';
-            compPromotions.forEach(promo => {
-                itemsHTML += `
-                    <div class="promo-item">
-                        <div class="promo-item-icon-wrapper">${getCategoryIcon(promo.category)}</div>
-                        <div class="promo-item-details">
-                            <div class="promo-item-title">${promo.title}</div>
-                            <div class="promo-item-category">${promo.category}</div>
-                            <p class="promo-item-description">${promo.details}</p>
-                            <p class="promo-item-description" style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.25rem;">
-                                ${promo.startDate} to ${promo.endDate}
-                            </p>
-                        </div>
-                    </div>
-                `;
-            });
-
-            card.innerHTML = `
-                <div class="promo-card-header">${compName}</div>
-                <div class="promo-card-content">${itemsHTML}</div>
-            `;
-            container.appendChild(card);
-        });
-    };
-    
-    const populateCompetitorDropdown = (competitors) => {
-        const select = document.getElementById('competitor');
-        select.innerHTML = competitors.map(c => `<option value="${c}">${c}</option>`).join('');
-    };
-
-    // --- DATA FETCHING AND INITIALIZATION ---
-    async function initialize(countryCode) {
-        const binId = dataSources[countryCode];
-        if (!binId || binId.startsWith('REPLACE_WITH')) {
-            const timelineGrid = document.getElementById('timeline-grid');
-            timelineGrid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #9A3412; background-color: #FFEDD5; border-radius: 0.5rem;"><p><strong>Configuration needed:</strong> Please update the 'script.js' file with a valid Bin ID for the selected country.</p></div>`;
-            document.getElementById('promo-cards-container').innerHTML = '';
-            return;
-        }
-
-        const url = `https://api.jsonbin.io/v3/b/${binId}/latest`;
-
-        try {
-            const response = await fetch(url, { headers: { 'X-Master-Key': API_KEY } });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}. Check API Key and Bin ID.`);
-            
-            const data = await response.json();
-            const promotions = data.record; 
-
-            if (!Array.isArray(promotions)) throw new Error("Fetched data is not an array.");
-            
-            allPromotions = promotions.map(promo => ({...promo, category: getPromoCategory(promo) }));
-            allCompetitors = [...new Set(allPromotions.map(p => p.competitor))].sort();
-
-            populateCompetitorDropdown(allCompetitors);
-            renderAll();
-
-        } catch (error) {
-            console.error(`Failed to load promotions from Bin ID ${binId}:`, error);
-            const timelineGrid = document.getElementById('timeline-grid');
-            timelineGrid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #991B1B; background-color: #FEF2F2; border-radius: 0.5rem;"><p><strong>Error:</strong> Could not load promotion data.</p><p>${error.message}</p></div>`;
-            document.getElementById('promo-cards-container').innerHTML = '';
-        }
-    }
-
-    // --- SETUP EVENT LISTENERS ---
-    function setupEventListeners() {
-        if (detailsModalCloseButton) detailsModalCloseButton.onclick = () => detailsModal.classList.add('hidden');
-        if (detailsModal) detailsModal.onclick = (e) => { if (e.target === detailsModal) detailsModal.classList.add('hidden'); };
-        
-        if (addModalCancelButton) addModalCancelButton.onclick = () => addPromoModal.classList.add('hidden');
-        if (addPromoModal) addPromoModal.onclick = (e) => { if (e.target === addPromoModal) addPromoModal.classList.add('hidden'); };
-
-        if (addPromoBtn) {
-            addPromoBtn.addEventListener('click', () => {
-                addPromoForm.reset();
-                addPromoModal.classList.remove('hidden');
-            });
-        }
-
-        if (addPromoForm) {
-            addPromoForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const formData = new FormData(addPromoForm);
-                const newPromo = {
-                    competitor: formData.get('competitor'),
-                    title: formData.get('title'),
-                    startDate: formData.get('startDate'),
-                    endDate: formData.get('endDate'),
-                    details: formData.get('details'),
-                    url: ''
-                };
-                newPromo.category = getPromoCategory(newPromo);
-                allPromotions.push(newPromo);
-                renderAll();
-                addPromoModal.classList.add('hidden');
-            });
-        }
-
-        if (countrySelector) {
-            countrySelector.addEventListener('change', (event) => {
-                initialize(event.target.value);
-            });
-        }
-    }
-
-    // --- INITIAL LOAD ---
-    setupEventListeners();
-    initialize(countrySelector.value);
-});
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.5rem; }
+.form-group input, .form-group select, .form-group textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #CBD5E1;
+    border-radius: 0.5rem;
+    background-color: var(--card-background);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--accent-primary-light);
+}
