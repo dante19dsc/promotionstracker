@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. PASTE THE UNIQUE BIN ID FOR EACH COUNTRY'S JSON FILE HERE
     const dataSources = {
-        id: 'REPLACE_WITH_INDONESIA_BIN_ID', // Bin ID for promotions_id.json
+        id: '68abbd4943b1c97be92887d9', // Bin ID for promotions_id.json
         sg: 'REPLACE_WITH_SINGAPORE_BIN_ID', // Bin ID for promotions_sg.json
         my: 'REPLACE_WITH_MALAYSIA_BIN_ID'  // Bin ID for promotions_my.json
     };
