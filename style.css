@@ -77,6 +77,10 @@ a:hover { text-decoration: underline; }
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     display: inline-flex; align-items: center; gap: 0.5rem;
 }
+.btn:disabled {
+    background-color: #94A3B8;
+    cursor: not-allowed;
+}
 .btn-primary {
     background-color: var(--accent-primary); color: white;
 }
@@ -177,7 +181,11 @@ a:hover { text-decoration: underline; }
 }
 .timeline-label .icon { width: 18px; height: 18px; color: var(--text-secondary); }
 .timeline-label.competitor-header { font-weight: 700; font-size: 14px; background-color: #F1F5F9; }
-.timeline-cell { border-right: 1px solid #F1F5F9; position: relative; overflow: hidden; }
+.timeline-cell { 
+    border-right: 1px solid #F1F5F9; 
+    position: relative; 
+    /* FIX: Removed overflow: hidden; */
+}
 .timeline-bar {
     position: absolute; height: 24px; left: 2px; border-radius: 4px;
     display: flex; align-items: center; font-size: 11px; font-weight: 600;
