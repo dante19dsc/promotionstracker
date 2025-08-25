@@ -1,174 +1,81 @@
-/* --- General & Resets --- */
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #F9FAFB;
-    color: #374151;
-    margin: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Portal - Competitor Promotion Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="script.js" defer></script>
+</head>
+<body>
 
-h1, h2, h3, h4 { color: #111827; font-weight: 600; }
-a { color: #4F46E5; text-decoration: none; }
-a:hover { text-decoration: underline; }
-.mb-8 { margin-bottom: 3.5rem; }
+    <div class="container">
+        <!-- Header -->
+        <header class="site-header">
+            <div class="logo">
+                <svg class="h-8 w-8 mr-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.25 10.3125C3.86929 10.3125 2.75 9.19321 2.75 7.8125C2.75 6.43179 3.86929 5.3125 5.25 5.3125C6.63071 5.3125 7.75 6.43179 7.75 7.8125C7.75 9.19321 6.63071 10.3125 5.25 10.3125Z" stroke="#111827" stroke-width="1.5"/><path d="M18.75 18.3125C17.3693 18.3125 16.25 17.1932 16.25 15.8125C16.25 14.4318 17.3693 13.3125 18.75 13.3125C20.1307 13.3125 21.25 14.4318 21.25 15.8125C21.25 17.1932 20.1307 18.3125 18.75 18.3125Z" stroke="#111827" stroke-width="1.5"/><path d="M12 14.3125C10.6193 14.3125 9.5 13.1932 9.5 11.8125C9.5 10.4318 10.6193 9.3125 12 9.3125C13.3807 9.3125 14.5 10.4318 14.5 11.8125C14.5 13.1932 13.3807 14.3125 12 14.3125Z" stroke="#111827" stroke-width="1.5"/><path d="M12 21.25V14.3125" stroke="#111827" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.75 13.3125L20.25 10.3125L18.75 7.3125L16.25 4.3125" stroke="#111827" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.25 10.3125L7.3125 12.8125L9.5 11.8125" stroke="#111827" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Analytics Portal</span>
+            </div>
+            <nav class="site-nav">
+                <a href="#" class="nav-link">Marketing</a>
+                <a href="#" class="nav-link">Store Dev</a>
+                <a href="#" class="nav-link active">Promotions</a>
+            </nav>
+        </header>
 
-/* --- Layout --- */
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1.5rem;
-}
+        <!-- Main Content -->
+        <main>
+            <div class="page-title">
+                <div>
+                    <h1>Competitor Promotion Tracker</h1>
+                    <p>Monitor and analyze competitor promotional activities for August 2025.</p>
+                </div>
+                <div class="page-actions">
+                     <div class="country-selector-wrapper">
+                        <select id="countrySelector" class="country-selector">
+                            <option value="id">Indonesia</option>
+                            <option value="sg">Singapore</option>
+                            <option value="my">Malaysia</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary">Add Promotion</button>
+                </div>
+            </div>
+            
+            <div class="card mb-8">
+                <h3 class="card-header">Promotions Timeline</h3>
+                <div class="timeline-container">
+                    <div id="timeline-grid">
+                        <!-- JS will build the timeline here -->
+                    </div>
+                </div>
+            </div>
 
-/* --- Header & Navigation --- */
-.site-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    margin-bottom: 2.5rem;
-    border-bottom: 1px solid #E5E7EB;
-}
-.logo { display: flex; align-items: center; font-weight: 600; font-size: 1.125rem; color: #111827; }
-.site-nav { display: flex; gap: 1rem; }
-.nav-link {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #4B5563;
-    transition: background-color 0.2s ease;
-}
-.nav-link:hover { background-color: #F3F4F6; text-decoration: none; }
-.nav-link.active { background-color: #EEF2FF; color: #4338CA; }
+            <div class="mb-8">
+                <div class="page-title" style="text-align: left; padding-left: 0;">
+                    <h2>Current Promotions Overview</h2>
+                    <p>A detailed look at ongoing promotions from each competitor.</p>
+                </div>
+                <div id="promo-cards-container" class="promo-card-grid">
+                    <!-- Promotion cards will be rendered here by JS -->
+                </div>
+            </div>
+        </main>
+    </div>
 
-/* --- Page Title & Actions --- */
-.page-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2.5rem;
-}
-.page-title h1 { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; }
-.page-title p { font-size: 1.125rem; color: #6B7280; margin-top: 0; }
-.page-actions { display: flex; align-items: center; gap: 1rem; }
+    <!-- Custom Modal for Promotion Details -->
+    <div id="promoModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h4 class="modal-header">Promotion Details</h4>
+            <div id="modal-body" class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCloseButton">Close</button>
+            </div>
+        </div>
+    </div>
 
-/* --- Buttons & Inputs --- */
-.btn {
-    padding: 0.6rem 1.2rem; border: none; border-radius: 0.5rem;
-    font-size: 0.875rem; font-weight: 600; cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    display: inline-flex; align-items: center; gap: 0.5rem;
-}
-.btn-primary {
-    background-color: #4F46E5; color: white;
-}
-.btn-primary:hover { background-color: #4338CA; box-shadow: 0 4px 10px -2px rgb(79 70 229 / 40%); }
-.btn-secondary {
-    background-color: #E5E7EB; color: #374151;
-}
-.btn-secondary:hover { background-color: #D1D5DB; }
-
-.country-selector {
-    padding: 0.6rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #D1D5DB;
-    background-color: #fff;
-    font-size: 0.875rem;
-    font-weight: 500;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.5rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-    padding-right: 2.5rem;
-}
-
-/* --- Cards --- */
-.card {
-    background-color: #FFFFFF;
-    border-radius: 0.75rem;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-}
-.card-header {
-    font-size: 1.125rem;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #E5E7EB;
-}
-
-/* --- Timeline --- */
-.timeline-container { overflow-x: auto; padding: 1.5rem; padding-bottom: 1rem; }
-.timeline-header { display: grid; grid-template-columns: 220px repeat(31, 35px); position: sticky; top: 0; z-index: 10; background-color: #fff;}
-.timeline-header-cell {
-    background-color: #F9FAFB; color: #4B5563;
-    padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 600;
-    border-right: 1px solid #F3F4F6; border-bottom: 1px solid #E5E7EB;
-}
-.timeline-header-cell:first-child { position: sticky; left: 0; z-index: 11; background-color: #fff; text-align: left; padding-left: 12px;}
-.timeline-header-cell.today { background-color: #FEE2E2; color: #B91C1C; font-weight: 700; }
-.timeline-header-cell.independence-day { background-color: #FFEDD5; color: #9A3412; }
-.timeline-row { display: grid; grid-template-columns: 220px repeat(31, 35px); min-height: 40px; border-bottom: 1px solid #F3F4F6; }
-.timeline-label {
-    padding: 8px 12px; font-size: 13px; font-weight: 500; color: #374151;
-    border-right: 1px solid #E5E7EB; background-color: #F9FAFB;
-    position: sticky; left: 0; z-index: 5; display: flex; align-items: center; gap: 8px;
-}
-.timeline-label .icon { width: 16px; height: 16px; color: #6B7280; }
-.timeline-label.competitor-header { font-weight: 700; font-size: 14px; background-color: #F3F4F6; }
-.timeline-cell { border-right: 1px solid #F3F4F6; position: relative; }
-.timeline-bar {
-    position: absolute; height: 24px; left: 2px; border-radius: 4px;
-    display: flex; align-items: center; font-size: 11px; font-weight: 600;
-    color: white; cursor: pointer; transition: all 0.2s ease; z-index: 6;
-    padding: 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-.timeline-bar:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 7;}
-.timeline-bar.hartono { background-color: #F59E0B; border-left: 3px solid #D97706; }
-.timeline-bar.electronic-city { background-color: #3B82F6; border-left: 3px solid #2563EB; }
-.timeline-bar.erablue { background-color: #14B8A6; border-left: 3px solid #0D9488; }
-
-/* --- Promotion Card Grid --- */
-.promo-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
-.promo-card {
-    background-color: #FFFFFF; border-radius: 0.75rem;
-    border: 1px solid #E5E7EB; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    overflow: hidden; display: flex; flex-direction: column;
-}
-.promo-card-header { padding: 1rem; font-size: 1.25rem; font-weight: 700; color: #111827; background-color: #F9FAFB; border-bottom: 1px solid #E5E7EB; }
-.promo-card-content { padding: 1rem; flex-grow: 1; }
-.promo-item { display: flex; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px dashed #E5E7EB; }
-.promo-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-.promo-item-icon-wrapper {
-    width: 48px; height: 48px; border-radius: 0.5rem; margin-right: 1rem;
-    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    background-color: #EEF2FF;
-}
-.promo-item-icon-wrapper .icon { width: 24px; height: 24px; color: #4338CA; }
-.promo-item-details { flex-grow: 1; }
-.promo-item-title { font-weight: 600; color: #1F2937; margin-bottom: 0.25rem; }
-.promo-item-category {
-    font-size: 0.75rem; color: #4338CA; margin-bottom: 0.5rem; padding: 0.125rem 0.5rem;
-    background-color: #EEF2FF; border-radius: 999px; display: inline-block; font-weight: 500;
-}
-.promo-item-description { font-size: 0.875rem; color: #4B5563; }
-
-/* --- Modal --- */
-.modal-overlay {
-    position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.6);
-    display: flex; items-center; justify-center; z-index: 50;
-    backdrop-filter: blur(4px);
-}
-.modal-overlay.hidden { display: none; }
-.modal-content {
-    background: white; padding: 1.5rem; border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    max-width: 500px; width: 90%;
-}
-.modal-header { font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem; }
-.modal-body p { margin: 0.5rem 0; line-height: 1.6; }
-.modal-body strong { color: #111827; }
-.modal-footer { margin-top: 1.5rem; text-align: right; }
+</body>
+</html>
