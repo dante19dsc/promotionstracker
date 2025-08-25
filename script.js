@@ -116,6 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const createTimeline = (promotions, competitors, categories) => {
         const container = document.getElementById('timeline-grid');
+        const daysInMonth = new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth() + 1, 0).getUTCDate();
+        const gridTemplateColumns = `220px repeat(${daysInMonth}, 35px)`;
+        const totalWidth = 220 + (daysInMonth * 35);
+        container.style.minWidth = `${totalWidth}px`; // <-- Add this line here
         if (!container) return;
         container.innerHTML = '';
 
@@ -340,3 +344,4 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     initialize(countrySelector.value);
 });
+
