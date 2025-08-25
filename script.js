@@ -5,12 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
         'Hartono': { colorClass: 'hartono', bgColor: '#FFFBEB' },
         'Electronic City': { colorClass: 'electronic-city', bgColor: '#EFF6FF' },
         'Erablue': { colorClass: 'erablue', bgColor: '#F0FDFA' },
-        'Courts': { colorClass: 'hartono', bgColor: '#FEF2F2' }, // Example for SG/MY
-        'Harvey Norman': { colorClass: 'electronic-city', bgColor: '#F0F9FF' } // Example for SG/MY
+        'Courts': { colorClass: 'hartono', bgColor: '#FEF2F2' },
+        'Harvey Norman': { colorClass: 'electronic-city', bgColor: '#F0F9FF' }
     };
     const MONTH_YEAR = '2025-08';
 
-    // --- UTILITY FUNCTIONS ---
+    // --- NEW: DATA SOURCE CONFIGURATION ---
+    // 1. PASTE YOUR API KEY HERE
+    const API_KEY = '$2a$10$a9opB6cl3g504axvVz6kwOM3WAs4VeFQIsfg7tJnMg.eLeV7I8Zmi';
+
+    // 2. PASTE THE UNIQUE BIN ID FOR EACH COUNTRY'S JSON FILE HERE
+    const dataSources = {
+        id: 'REPLACE_WITH_INDONESIA_BIN_ID', // Bin ID for promotions_id.json
+        sg: 'REPLACE_WITH_SINGAPORE_BIN_ID', // Bin ID for promotions_sg.json
+        my: 'REPLACE_WITH_MALAYSIA_BIN_ID'  // Bin ID for promotions_my.json
+    };
+
+
+    // --- UTILITY FUNCTIONS (No changes here) ---
     const getPromoCategory = (promo) => {
         const text = (promo.title + ' ' + promo.details).toLowerCase();
         if (text.includes('bank') || text.includes('credit card') || text.includes('cicilan') || text.includes('dbs') || text.includes('mandiri') || text.includes('kredivo') || text.includes('indodana') || text.includes('akulaku') || text.includes('cimb')) return 'Bank & Payment';
@@ -56,8 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const duration = promoEnd.getUTCDate() - startDay + 1;
         return { startDay, duration };
     };
-
-    // --- MODAL HANDLING ---
+    
+    // --- MODAL HANDLING (No changes here) ---
     const modal = document.getElementById('promoModal');
     const modalBody = document.getElementById('modal-body');
     const modalCloseButton = document.getElementById('modalCloseButton');
@@ -78,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
 
 
-    // --- RENDERING FUNCTIONS ---
+    // --- RENDERING FUNCTIONS (No changes here) ---
     const createTimeline = (promotions, competitors, categories) => {
         const container = document.getElementById('timeline-grid');
         if (!container) return;
@@ -123,9 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.style.backgroundColor = config.bgColor;
                     return cell;
                 });
-
-                // ** FIX FOR OVERLAPPING BARS **
-                const dailyPromoCount = Array(32).fill(0); // Tracks promotions per day to offset them
+                
+                const dailyPromoCount = Array(32).fill(0);
 
                 categoryPromos.forEach(promo => {
                     const span = calculatePromotionSpan(promo.startDate, promo.endDate);
@@ -135,20 +146,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         bar.className = `timeline-bar ${config.colorClass}`;
                         bar.style.width = `${(span.duration * 35) - 4}px`;
-                        bar.style.top = `${7 + (offset * 28)}px`; // 28px = bar height + gap
+                        bar.style.top = `${7 + (offset * 28)}px`;
                         bar.textContent = promo.title;
                         bar.onclick = () => showModal(promo);
                         
                         dayCells[span.startDay - 1].appendChild(bar);
 
-                        // Increment the count for the duration of this promo
                         for(let i = 0; i < span.duration; i++) {
                             dailyPromoCount[span.startDay + i]++;
                         }
                     }
                 });
 
-                // Adjust row height based on max concurrent promos
                 const maxOffset = Math.max(...dailyPromoCount);
                 if (maxOffset > 1) {
                     categoryRow.style.minHeight = `${maxOffset * 28 + 12}px`;
@@ -197,14 +206,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- DATA FETCHING AND INITIALIZATION ---
+    // --- DATA FETCHING AND INITIALIZATION (UPDATED) ---
     async function initialize(countryCode) {
-        const dataFile = `promotions_${countryCode}.json`;
+        const binId = dataSources[countryCode];
+        if (!binId || binId.startsWith('REPLACE_WITH')) {
+            const timelineGrid = document.getElementById('timeline-grid');
+            timelineGrid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #9A3412; background-color: #FFEDD5; border-radius: 0.5rem;">
+                <p><strong>Configuration needed:</strong> Please update the 'script.js' file with a valid Bin ID for the selected country.</p>
+            </div>`;
+            document.getElementById('promo-cards-container').innerHTML = '';
+            return;
+        }
+
+        const url = `https://api.jsonbin.io/v3/b/${binId}/latest`;
+
         try {
-            const response = await fetch(dataFile);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const response = await fetch(url, {
+                headers: {
+                    'X-Master-Key': API_KEY
+                }
+            });
+
+            if (!response.ok) {
+                 throw new Error(`HTTP error! status: ${response.status}. Check your API Key and Bin ID.`);
+            }
             
-            let promotions = await response.json();
+            // JSONBin nests the actual data inside a 'record' property
+            const data = await response.json();
+            const promotions = data.record; 
+
+            if (!Array.isArray(promotions)) {
+                throw new Error("The fetched data is not an array. Check your JSON format in the bin.");
+            }
             
             promotions.forEach(promo => {
                 promo.category = getPromoCategory(promo);
@@ -217,12 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPromotionCards(promotions, competitors);
 
         } catch (error) {
-            console.error(`Failed to load and render promotions from ${dataFile}:`, error);
+            console.error(`Failed to load and render promotions from Bin ID ${binId}:`, error);
             const timelineGrid = document.getElementById('timeline-grid');
             const cardsContainer = document.getElementById('promo-cards-container');
             const errorMessage = `<div style="padding: 2rem; text-align: center; color: #991B1B; background-color: #FEF2F2; border-radius: 0.5rem;">
-                <p><strong>Error:</strong> Could not load promotion data for this country.</p>
-                <p>Please make sure the file <strong>'${dataFile}'</strong> exists and is accessible.</p>
+                <p><strong>Error:</strong> Could not load promotion data.</p>
+                <p>${error.message}</p>
             </div>`;
             if(timelineGrid) timelineGrid.innerHTML = errorMessage;
             if(cardsContainer) cardsContainer.innerHTML = '';
