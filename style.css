@@ -117,7 +117,12 @@ a:hover { text-decoration: underline; }
 }
 
 /* --- Timeline --- */
-.timeline-container { overflow-x: auto; padding: 1.5rem; padding-bottom: 1rem; }
+.timeline-container { 
+    overflow-x: auto; 
+    padding: 1.5rem; 
+    padding-bottom: 1rem; 
+    position: relative; /* Establishes stacking context */
+}
 .timeline-header { display: grid; grid-template-columns: 220px repeat(31, 35px); position: sticky; top: 0; z-index: 10; background-color: var(--card-background);}
 .timeline-header-cell {
     background-color: #F8FAFC; color: var(--text-secondary);
@@ -131,7 +136,9 @@ a:hover { text-decoration: underline; }
 .timeline-label {
     padding: 8px 12px; font-size: 13px; font-weight: 500; color: var(--text-primary);
     border-right: 1px solid var(--border-color); background-color: #F8FAFC;
-    position: sticky; left: 0; z-index: 5; display: flex; align-items: center; gap: 8px;
+    position: sticky; left: 0; 
+    z-index: 8; /* FIX: Higher z-index to stay on top of bars */
+    display: flex; align-items: center; gap: 8px;
 }
 .timeline-label .icon { width: 18px; height: 18px; color: var(--text-secondary); }
 .timeline-label.competitor-header { font-weight: 700; font-size: 14px; background-color: #F1F5F9; }
@@ -139,11 +146,16 @@ a:hover { text-decoration: underline; }
 .timeline-bar {
     position: absolute; height: 24px; left: 2px; border-radius: 4px;
     display: flex; align-items: center; font-size: 11px; font-weight: 600;
-    color: white; cursor: pointer; transition: all 0.2s ease; z-index: 6;
+    color: white; cursor: pointer; transition: all 0.2s ease; 
+    z-index: 6; /* Base z-index */
     padding: 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-.timeline-bar:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 7;}
+.timeline-bar:hover { 
+    transform: translateY(-1px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    z-index: 7; /* Hover z-index */
+}
 .timeline-bar.hartono { background-color: var(--competitor-1); border-left: 3px solid #1D4ED8; }
 .timeline-bar.electronic-city { background-color: var(--competitor-2); border-left: 3px solid #172554; }
 .timeline-bar.erablue { background-color: var(--competitor-3); border-left: 3px solid #334155; }
