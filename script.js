@@ -1,28 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    // --- GLOBAL STATE ---
+    let allPromotions = [];
+    let allCompetitors = [];
+
     // --- GLOBAL CONFIGURATION ---
     const competitorConfig = {
-        'Hartono': { colorClass: 'hartono', bgColor: '#FFFBEB' },
-        'Electronic City': { colorClass: 'electronic-city', bgColor: '#EFF6FF' },
-        'Erablue': { colorClass: 'erablue', bgColor: '#F0FDFA' },
-        'Courts': { colorClass: 'hartono', bgColor: '#FEF2F2' },
-        'Harvey Norman': { colorClass: 'electronic-city', bgColor: '#F0F9FF' }
+        'Hartono': { colorClass: 'hartono', bgColor: '#DBEAFE' },
+        'Electronic City': { colorClass: 'electronic-city', bgColor: '#D1FAE5' },
+        'Erablue': { colorClass: 'erablue', bgColor: '#FEF3C7' },
+        'Courts': { colorClass: 'courts', bgColor: '#FEE2E2' },
+        'Harvey Norman': { colorClass: 'harvey-norman', bgColor: '#F5F3FF' }
     };
     const MONTH_YEAR = '2025-08';
-
-    // --- NEW: DATA SOURCE CONFIGURATION ---
-    // 1. PASTE YOUR API KEY HERE
     const API_KEY = '$2a$10$a9opB6cl3g504axvVz6kwOM3WAs4VeFQIsfg7tJnMg.eLeV7I8Zmi';
-
-    // 2. PASTE THE UNIQUE BIN ID FOR EACH COUNTRY'S JSON FILE HERE
     const dataSources = {
-        id: '68abbd4943b1c97be92887d9', // Bin ID for promotions_id.json
-        sg: 'REPLACE_WITH_SINGAPORE_BIN_ID', // Bin ID for promotions_sg.json
-        my: 'REPLACE_WITH_MALAYSIA_BIN_ID'  // Bin ID for promotions_my.json
+        id: '68abbd4943b1c97be92887d9',
+        sg: 'REPLACE_WITH_SINGAPORE_BIN_ID',
+        my: 'REPLACE_WITH_MALAYSIA_BIN_ID'
     };
 
-
-    // --- UTILITY FUNCTIONS (No changes here) ---
+    // --- UTILITY FUNCTIONS ---
     const getPromoCategory = (promo) => {
         const text = (promo.title + ' ' + promo.details).toLowerCase();
         if (text.includes('bank') || text.includes('credit card') || text.includes('cicilan') || text.includes('dbs') || text.includes('mandiri') || text.includes('kredivo') || text.includes('indodana') || text.includes('akulaku') || text.includes('cimb')) return 'Bank & Payment';
@@ -38,15 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getCategoryIcon = (category) => {
         const icons = {
-            'Bank & Payment': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>`,
-            'HP & Gadget': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`,
-            'Laptop & PC': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>`,
-            'TV & Audio': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`,
-            'Home Appliances': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>`,
-            'Back to School': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>`,
-            'National Day': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>`,
-            'Smart Home & IoT': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.142 0M1.394 9.343a15 15 0 0121.213 0"></path></svg>`,
-            'General': `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>`
+            'Bank & Payment': `<svg class="icon" viewBox="0 0 24 24"><path fill="#C7D2FE" d="M4 8h16v2H4z"/><path fill="#4F46E5" d="M20 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 12H4V10h16v8zm-8-2h2v-4h-2v4z"/></svg>`,
+            'HP & Gadget': `<svg class="icon" viewBox="0 0 24 24"><path fill="#A7F3D0" d="M8 3h8v11H8z"/><path fill="#10B981" d="M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zm-5 18a1 1 0 110-2 1 1 0 010 2zm3-3H9V4h6v13z"/></svg>`,
+            'Laptop & PC': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FDE68A" d="M4 5h16v10H4z"/><path fill="#F59E0B" d="M22 15H2a2 2 0 00-2 2v1h24v-1a2 2 0 00-2-2zM20 4H4a2 2 0 00-2 2v10h20V6a2 2 0 00-2-2z"/></svg>`,
+            'TV & Audio': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FECACA" d="M5 7h14v8H5z"/><path fill="#EF4444" d="M21 5H3a2 2 0 00-2 2v10a2 2 0 002 2h4l-1.8 2.7A1 1 0 006 23h12a1 1 0 00.8-1.6L17 19h4a2 2 0 002-2V7a2 2 0 00-2-2zM5 15V7h14v8H5z"/></svg>`,
+            'Home Appliances': `<svg class="icon" viewBox="0 0 24 24"><path fill="#A7F3D0" d="M15 15h-2v4h2v-4zm-4 0H9v4h2v-4z"/><path fill="#10B981" d="M18 3H6a2 2 0 00-2 2v16h16V5a2 2 0 00-2-2zm-8 2h4v3h-4V5zM8 19v-4h8v4H8z"/></svg>`,
+            'Back to School': `<svg class="icon" viewBox="0 0 24 24"><path fill="#DDD6FE" d="M6 4h12v16H6z"/><path fill="#8B5CF6" d="M18 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-6 4l-3 4h6l-3-4z"/></svg>`,
+            'National Day': `<svg class="icon" viewBox="0 0 24 24"><path fill="#FECACA" d="M5 5h14v6H5z"/><path fill="#DC2626" d="M5 3h1a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1zm15 2v6H6V5h14z"/></svg>`,
+            'Smart Home & IoT': `<svg class="icon" viewBox="0 0 24 24"><path fill="#C7D2FE" d="M12 10a2 2 0 100 4 2 2 0 000-4z"/><path fill="#4F46E5" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15a5 5 0 110-10 5 5 0 010 10z"/><path fill="#C7D2FE" d="M12 10a2 2 0 100 4 2 2 0 000-4z"/></svg>`,
+            'General': `<svg class="icon" viewBox="0 0 24 24"><path fill="#E5E7EB" d="M6 4h12v12H6z"/><path fill="#6B7280" d="M18 2H6a2 2 0 00-2 2v12a2 2 0 002 2h4v4l4-4h4a2 2 0 002-2V4a2 2 0 00-2-2zm0 14H6V4h12v12z"/></svg>`
         };
         return icons[category] || icons['General'];
     };
@@ -69,13 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return { startDay, duration };
     };
     
-    // --- MODAL HANDLING (No changes here) ---
-    const modal = document.getElementById('promoModal');
-    const modalBody = document.getElementById('modal-body');
-    const modalCloseButton = document.getElementById('modalCloseButton');
+    // --- MODAL HANDLING ---
+    const detailsModal = document.getElementById('promoModal');
+    const detailsModalBody = document.getElementById('modal-body');
+    const detailsModalCloseButton = document.getElementById('modalCloseButton');
     
-    const showModal = (promo) => {
-        modalBody.innerHTML = `
+    const addPromoModal = document.getElementById('addPromoModal');
+    const addPromoBtn = document.getElementById('addPromotionBtn');
+    const addPromoForm = document.getElementById('addPromoForm');
+    const addModalCancelButton = document.getElementById('addModalCancelButton');
+
+    const showDetailsModal = (promo) => {
+        detailsModalBody.innerHTML = `
             <p><strong>Competitor:</strong> ${promo.competitor}</p>
             <p><strong>Title:</strong> ${promo.title}</p>
             <p><strong>Category:</strong> ${promo.category}</p>
@@ -83,14 +86,22 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>Details:</strong> ${promo.details}</p>
             ${promo.url ? `<p><strong>Source:</strong> <a href="${promo.url}" target="_blank" rel="noopener noreferrer">View Promotion</a></p>` : ''}
         `;
-        modal.classList.remove('hidden');
+        detailsModal.classList.remove('hidden');
     };
 
-    modalCloseButton.onclick = () => modal.classList.add('hidden');
-    modal.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
+    detailsModalCloseButton.onclick = () => detailsModal.classList.add('hidden');
+    detailsModal.onclick = (e) => { if (e.target === detailsModal) detailsModal.classList.add('hidden'); };
 
+    addModalCancelButton.onclick = () => addPromoModal.classList.add('hidden');
+    addPromoModal.onclick = (e) => { if (e.target === addPromoModal) addPromoModal.classList.add('hidden'); };
 
-    // --- RENDERING FUNCTIONS (No changes here) ---
+    // --- RENDERING FUNCTIONS ---
+    const renderAll = () => {
+        const categories = [...new Set(allPromotions.map(p => p.category))].sort();
+        createTimeline(allPromotions, allCompetitors, categories);
+        renderPromotionCards(allPromotions, allCompetitors);
+    };
+
     const createTimeline = (promotions, competitors, categories) => {
         const container = document.getElementById('timeline-grid');
         if (!container) return;
@@ -148,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         bar.style.width = `${(span.duration * 35) - 4}px`;
                         bar.style.top = `${7 + (offset * 28)}px`;
                         bar.textContent = promo.title;
-                        bar.onclick = () => showModal(promo);
+                        bar.onclick = () => showDetailsModal(promo);
                         
                         dayCells[span.startDay - 1].appendChild(bar);
 
@@ -205,15 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(card);
         });
     };
+    
+    const populateCompetitorDropdown = (competitors) => {
+        const select = document.getElementById('competitor');
+        select.innerHTML = competitors.map(c => `<option value="${c}">${c}</option>`).join('');
+    };
 
-    // --- DATA FETCHING AND INITIALIZATION (UPDATED) ---
+    // --- DATA FETCHING AND INITIALIZATION ---
     async function initialize(countryCode) {
         const binId = dataSources[countryCode];
         if (!binId || binId.startsWith('REPLACE_WITH')) {
             const timelineGrid = document.getElementById('timeline-grid');
-            timelineGrid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #9A3412; background-color: #FFEDD5; border-radius: 0.5rem;">
-                <p><strong>Configuration needed:</strong> Please update the 'script.js' file with a valid Bin ID for the selected country.</p>
-            </div>`;
+            timelineGrid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #9A3412; background-color: #FFEDD5; border-radius: 0.5rem;"><p><strong>Configuration needed:</strong> Please update the 'script.js' file with a valid Bin ID for the selected country.</p></div>`;
             document.getElementById('promo-cards-container').innerHTML = '';
             return;
         }
@@ -221,44 +235,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = `https://api.jsonbin.io/v3/b/${binId}/latest`;
 
         try {
-            const response = await fetch(url, {
-                headers: {
-                    'X-Master-Key': API_KEY
-                }
-            });
-
-            if (!response.ok) {
-                 throw new Error(`HTTP error! status: ${response.status}. Check your API Key and Bin ID.`);
-            }
+            const response = await fetch(url, { headers: { 'X-Master-Key': API_KEY } });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}. Check API Key and Bin ID.`);
             
-            // JSONBin nests the actual data inside a 'record' property
             const data = await response.json();
             const promotions = data.record; 
 
-            if (!Array.isArray(promotions)) {
-                throw new Error("The fetched data is not an array. Check your JSON format in the bin.");
-            }
+            if (!Array.isArray(promotions)) throw new Error("Fetched data is not an array.");
             
-            promotions.forEach(promo => {
-                promo.category = getPromoCategory(promo);
-            });
+            allPromotions = promotions.map(promo => ({...promo, category: getPromoCategory(promo) }));
+            allCompetitors = [...new Set(allPromotions.map(p => p.competitor))].sort();
 
-            const competitors = [...new Set(promotions.map(p => p.competitor))].sort();
-            const categories = [...new Set(promotions.map(p => p.category))].sort();
-
-            createTimeline(promotions, competitors, categories);
-            renderPromotionCards(promotions, competitors);
+            populateCompetitorDropdown(allCompetitors);
+            renderAll();
 
         } catch (error) {
-            console.error(`Failed to load and render promotions from Bin ID ${binId}:`, error);
+            console.error(`Failed to load promotions from Bin ID ${binId}:`, error);
             const timelineGrid = document.getElementById('timeline-grid');
-            const cardsContainer = document.getElementById('promo-cards-container');
-            const errorMessage = `<div style="padding: 2rem; text-align: center; color: #991B1B; background-color: #FEF2F2; border-radius: 0.5rem;">
-                <p><strong>Error:</strong> Could not load promotion data.</p>
-                <p>${error.message}</p>
-            </div>`;
-            if(timelineGrid) timelineGrid.innerHTML = errorMessage;
-            if(cardsContainer) cardsContainer.innerHTML = '';
+            timelineGrid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #991B1B; background-color: #FEF2F2; border-radius: 0.5rem;"><p><strong>Error:</strong> Could not load promotion data.</p><p>${error.message}</p></div>`;
+            document.getElementById('promo-cards-container').innerHTML = '';
         }
     }
 
@@ -267,7 +262,30 @@ document.addEventListener('DOMContentLoaded', () => {
     countrySelector.addEventListener('change', (event) => {
         initialize(event.target.value);
     });
+    
+    // **FIXED**: Correctly attach event listener for the Add Promotion button
+    addPromoBtn.addEventListener('click', () => {
+        addPromoForm.reset();
+        addPromoModal.classList.remove('hidden');
+    });
 
-    // Initial load
+    addPromoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(addPromoForm);
+        const newPromo = {
+            competitor: formData.get('competitor'),
+            title: formData.get('title'),
+            startDate: formData.get('startDate'),
+            endDate: formData.get('endDate'),
+            details: formData.get('details'),
+            url: ''
+        };
+        newPromo.category = getPromoCategory(newPromo);
+        allPromotions.push(newPromo);
+        renderAll();
+        addPromoModal.classList.add('hidden');
+    });
+
+    // --- INITIAL LOAD ---
     initialize(countrySelector.value);
 });
